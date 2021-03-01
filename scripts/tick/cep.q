@@ -1,10 +1,30 @@
+
+
+//CEP will be based on modified r.q
+
+
+// connect to TP
+
+
+// CEP must subscribe to trade and quote tables
+// modify r.q to subscrube for specific tables
+
+
+
+// apply func to creat agrTab, publish agrTab to TP
+// similar to how feedhandler does it 
+
+
+
+
+
 /q tick/r.q [host]:port[:usr:pwd] [host]:port[:usr:pwd]
 /2008.09.09 .k ->.q
 
 //if not windows, sleep for 1 second before trying to connect to other procs
 if[not "w"=first string .z.o;system "sleep 1"];
 
-//define .u.subTab to retain subbed tables
+//define .u.subTab to retain subbed tables, CEP must sub to trade, quote
 inputs:.Q.opt .z.x;
 .u.subTab:"`","`" sv ("," vs raze inputs`tab);
 
@@ -12,21 +32,24 @@ inputs:.Q.opt .z.x;
 // function to create agrTab from trade and quote
 //genAgrTab:{
 //    agrTab:(select maxPrice:max price,minPrice:min price,tradeVol:sum size by sym from trade) lj select maxBid:max bidPrice,minAsk:min askPrice by sym from quote;
-//	:(`aggreg;value flip 0!agrTab)
+//	:(`agrTab;value flip 0!agrTab)
 //    };
 
-//agrTab
-//time sym maxPrice minPrice tradeVol maxBid minAsk
+genAgrTab:{
+    agrTab:update "j"$maxBid, "j"$minAsk from (`time`sym`maxPrice`minPrice`tradeVol`maxBid`minAsk xcols update time:.z.n from 0!(select maxPrice:max price,minPrice:min price,tradeVol:sum size by sym from trade) lj select maxBid:max bidPrice,minAsk:min askPrice by sym from quote);
+	:(`agrTab;value flip 0!agrTab)
+    };
 
-//trade
-//time sym price size
-
-//quote
-// time sym bidSize askSize bidPrice askPrice
+//agrTab = time sym maxPrice minPrice tradeVol maxBid minAsk
+//          
+//trade = time sym price size
+//quote = time sym bidSize askSize bidPrice askPrice
 
 
 //upd function for RDB
-upd:insert;
+//upd:insert;
+///modified upd to insert for subbed tables but publish for agrTab to TP over handle h by calling upd in TP
+upd:{[t;x] .debug.tx:`t`x!(t;x);if[t in value .u.subTab;t insert x;.tp.h(`.u.upd,genAgrTab[])]};
 
 / get the TP and HDB ports from .z.x, defaults are 5010,5012
 .u.x:.z.x,(count .z.x)_(":5010";":5012");
@@ -46,11 +69,8 @@ upd:insert;
 // x is 2-item list of lists of tablename + empty schema
 // y is 2-item list of (number of msgs written to logfile; logfile filepath)
 .u.rep:{
-    .debug.x:x;
-    .debug.y:y;
     //initialize (set each tablename to its empty schema)
-    //modify so it enlists x if only one table is subscribed (e.g: agrTab)
-    $[first raze 0 = enlist distinct type each .debug.x ;(.[;();:;].)each x ;(.[;();:;].)each enlist x];
+    (.[;();:;].)each x;
     //if nothing was written tplog, exit
     if[null first y;:()];
     //replay logfile, this will populate the tables in RDB
@@ -62,5 +82,5 @@ upd:insert;
 
 // connect to ticker plant for (schema;(logcount;log))
 // open handle to TP, subscribe to all tables (will need to modify for RDB1 = quote,trade RDB2= agrTab); get second argument y (length of TP logfile, location) 
-.u.rep .(hopen `$":",.u.x 0)"(.u.sub[;`] each ", .u.subTab, ";`.u `i`L)";
+.u.rep .(.tp.h:hopen `$":",.u.x 0)"(.u.sub[;`] each ", .u.subTab, ";`.u `i`L)";
 
