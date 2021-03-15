@@ -60,6 +60,9 @@ upd:insert;
     };
 / HARDCODE \cd if other than logdir/db = this cd must be changed to position HDBdir
 
+//load in logging script
+system"l logging.q";
+
 // connect to ticker plant for (schema;(logcount;log))
 // open handle to TP, subscribe to all tables (will need to modify for RDB1 = quote,trade RDB2= agrTab); get second argument y (length of TP logfile, location) 
 .u.rep .(hopen `$":",.u.x 0)"(.u.sub[;`] each ", .u.subTab, ";`.u `i`L)";

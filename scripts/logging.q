@@ -1,81 +1,45 @@
 
-//logging requirements:
+//write log funcs that create or write to logfile
+logdir:"/home/ubuntu/advKDB/log";
+.log.procList:(5010;5011;5013;5015;5014)!`tickerPlant`RDB1`RDB2`FeedHandler`CEP;
+filename:(string .log.procList[system"p"]),"_",(.Q.s1 .z.D),".log";
+
+//if file doesnt exit, create it
+if[not (`$filename) in key (hsym `$logdir); (hsym `$logdir,"/",filename) 0: enlist ("Starting logfile for ",(string .log.procList[system"p"])," at time: ", string .z.P)];
+
+//hopen handle to file
+.hdl.log:hopen hsym `$("/home/ubuntu/advKDB/log","/",filename);
+
+//functions that write to logfile
+.log.out:{[msg] (neg .hdl.log)("INFO  ",(string .z.P),"  ",msg)};
+.log.err:{[msg] (neg .hdl.log)("ERROR  ",(string .z.P),"  ",msg)};
+
+// logged information
+// details: time, user, PID, port, handle 
+// .z.P, .z.u, .z.i,"system \"p\"", x, 
+// types "psiii"
+//.log.conn:flip `timestampOpen`timestampClosed`user`PID`port`handle`status!"PPSIIIS"$\:();
+
 //details of conenction opened
 //modify .z.po for function run on port open
+.z.po:{[x] 
+    .log.out["Connection opened: "];
+    .log.out[("time: ",(string x".z.P"),"| user: ", (string x".z.u"), "| PID: ", (string x".z.i"), "| port: ", (string x"system \"p\""),"| handle: ",string x)];
+    .log.out["Memory usage of connecting process: "];
+    .log.out["; " sv (string each key .Q.w[]),'":",'(string each value .Q.w[])];
+    .log.out["latest 2 "];
+    };
 
-//detail of connection closed 
+//info of connection closed 
 //modify .z.pc for function run on port close
+//if this runs in TP, maintian the TP .z.pc func
+.z.pc:{[x] 
+        .u.del[;x]each .u.t;
+        .log.out["Connection closed: "];
+        .log.out[("time: ",(string .z.P),"| handle: ",string x)];
+    };
 
 //logging must include username of calling process + memory usage where applicable from .Q.w
-
-//allow internal loggin from processes to go to stdout and stderr
-
+//"; " sv (string each key .Q.w[]),'":",'(string each value .Q.w[])
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//	log.q script which loads up with all tick templates											//
-//	q script will define functions in .z.po .z.pc and some .log functions						//
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-/init connection schema
-.log.connections:flip `dateTime`user`host`ipAddress`connection`handle`duration!"ZSS*SIV"$\:();
-
-/when connection is opened, collect from handle the following information
-/datetime username hostname ipaddress connection duration
-/collect data from .z.po
-.z.po:{[w] `.log.connections insert .z.Z,.z.u,(.Q.host .z.a;"." sv string "h"$0x0 vs .z.a),`opened,w,0Nv;.log.out .log.co w};
-
-/when connection is closed, update connection to closed
-.z.pc:{[w] update connection:`closed,duration:"v"$80000*.z.Z-dateTime from `.log.connections where handle = w;.log.out .log.cc w};
-
-/need unique name for each log file
-.log.AllProcessName:("J"$getenv `TICK_PORT`RDB1_PORT`RDB2_PORT`CEP_PORT`FEED_PORT`HDB_PORT`GATEWAY_PORT)!`tickerPlant`RDB1`RDB2`CEP`FeedHandler`HDB`GATEWAY;
-/.log.AllProcessName:(5010;5011;5013;5020;5012)!`tickerPlant`RDB1`RDB2`FeedHandler`HDB;
-.log.processName:.log.AllProcessName system"p";
-.log.file:hopen `$":",getenv[`LOG_DIR],"/",string[.log.processName],".log";
-
-.log.string:{string[.log.processName]," ## ",string[.z.P]," ## ",x," \n"};
-/capture initalised time
-.log.time:.z.T;
-/declare log output function
-.log.out:{.log.file "INFO: ",.log.string x};
-.log.err:{.log.file "ERROR: ",.log.string x};
- 
-\c 200 200
-
-.log.cc:{[w] "Connection closed: ",.Q.s1 exec from .log.connections where handle = w};
-.log.co:{[w] "Connection opened: ",.Q.s1 exec from .log.connections where handle = w}; 
-
-.log.value:{@[{.log.out "User: ",string[.z.u]," ## Memory Usage: ",.Q.s1 .Q.w[];value x};x;{.log.err -1_.Q.s x;x}]};
-
-/adding logging message in evaluating ipc
-.z.pg:{$[10h=type x;.log.value x;first[x] like "*upd";value x;.log.value x]};
-.z.ps:{$[10h=type x;.log.value x;first[x] like "*upd";value x;.log.value x]};
-
-/shutdown function
-.log.shutdown:{.log.out "Shutdown Trigger from mainScript";exit 0};

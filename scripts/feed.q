@@ -3,6 +3,9 @@
 //replace with command line argument for port
 h:neg hopen `:localhost:5010;
 
+//load in logging script
+system"l logging.q";
+
 //load table schemas
 \l tick/sym.q
 //define stocks and starting prices
@@ -10,7 +13,7 @@ syms:`MSFT`IBM`GS`AAPL`TSLA`CCL;
 prices:syms!100.05 200.10 352.11 20.00 40.00 55.50;
 
 //number of rows per update
-n:2;
+n:1;
 
 //randomize price movement 
 getmovement:{[s] rand[0.0001]*prices[s]};

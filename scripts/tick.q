@@ -12,10 +12,13 @@ system"l ./tick/",(src:first .z.x),".q";
 .debug.src:src;
 
 //set port if not set
-if[not system"p";system"p 5010"]
+if[not system"p";system"p 5010"];
 
 //load in u.q file"
 \l tick/u.q
+
+//load in logging script
+system"l logging.q";
 
 //define .u functions
 \d .u
