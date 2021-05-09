@@ -94,6 +94,21 @@ if [[ -z $(ps -ef | grep cep.q | grep -v grep | grep -v rlwrap) ]]
     fi
 }
 
+shutHDB()
+{
+printf "********************************** \n"
+printf "Checking HDB \n"
+if [[ -z $(ps -ef | grep hdb.q | grep -v grep | grep -v rlwrap) ]]
+	then
+        	printf "HDB not running \n"
+	else
+        	printf "HDB running at: \n"
+            printf "$(ps -ef | grep hdb.q | grep -v grep | grep -v rlwrap) \n"
+            printf "HDB shutting down \n"
+            kill $(ps -ef | grep hdb.q | grep -v grep | grep -v rlwrap| awk '{print $2}')
+    fi
+}
+
 if [ "$1" = "ALL" ]
 then 
     shutTP
@@ -101,6 +116,7 @@ then
     shutRDB2
     shutFH
     shutCEP
+    shutHDB
 elif [ "$1" = "TP" ]
 then
     shutTP
@@ -116,6 +132,9 @@ then
 elif [ "$1" = "CEP" ]
 then
     shutCEP
+elif [ "$1" = "HDB" ]
+then
+    shutHDB
 fi 
 
 printf "********************************** \n"

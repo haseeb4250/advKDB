@@ -97,6 +97,22 @@ if [[ -z $(ps -ef | grep cep.q | grep -v grep | grep -v rlwrap) ]]
 sleep 2
 }
 
+startHDB()
+{
+printf "********************************** \n"
+printf "Checking HDB \n"
+if [[ -z $(ps -ef | grep hdb.q | grep -v grep | grep -v rlwrap) ]]
+	then
+        	printf "Starting HDB \n"
+            cd $SCRIPTS_DIR
+            ($q tick/hdb.q -p $HDB_PORT > /dev/null 2>&1 &)
+	else
+        	printf "HDB running at: \n"
+            printf "$(ps -ef | grep hdb.q | grep -v grep | grep -v rlwrap) \n"
+    fi
+sleep 2
+}
+
 if [ "$1" = "ALL" ]
 then 
     startTP
@@ -104,6 +120,7 @@ then
     startRDB2
     startFH
     startCEP
+    startHDB
 elif [ "$1" = "TP" ]
 then
     startTP
@@ -119,6 +136,9 @@ then
 elif [ "$1" = "CEP" ]
 then
     startCEP
+elif [ "$1" = "HDB" ]
+then
+    startHDB
 fi 
 
 printf "********************************** \n"

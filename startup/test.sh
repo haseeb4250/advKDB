@@ -47,6 +47,15 @@ if [[ -z $(ps -ef | grep cep.q | grep -v grep | grep -v rlwrap) ]]
             printf "$(ps -ef | grep cep.q | grep -v grep | grep -v rlwrap) \n"
     fi
 printf "********************************** \n"
+printf "Checking HDB \n"
+if [[ -z $(ps -ef | grep hdb.q | grep -v grep | grep -v rlwrap) ]]
+	then
+        	printf "HDB not running \n"
+	else
+        	printf "HDB running at: \n"
+            printf "$(ps -ef | grep hdb.q | grep -v grep | grep -v rlwrap) \n"
+    fi
+printf "********************************** \n"
 printf "================================= \n"
 printf "           END TEST \n"
 printf "================================= \n"
