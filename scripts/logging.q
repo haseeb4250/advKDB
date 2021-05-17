@@ -1,14 +1,16 @@
 
 //write log funcs that create or write to logfile
-logdir:"/home/ubuntu/advKDB/log";
+//logdir:"/home/ubuntu/advKDB/log";
+logdir:system "echo $LOG_DIR";
 .log.procList:(5010;5011;5013;5015;5014)!`tickerPlant`RDB1`RDB2`FeedHandler`CEP;
 filename:(string .log.procList[system"p"]),"_",(.Q.s1 .z.D),".log";
 
 //if file doesnt exit, create it
-if[not (`$filename) in key (hsym `$logdir); (hsym `$logdir,"/",filename) 0: enlist ("Starting logfile for ",(string .log.procList[system"p"])," at time: ", string .z.P)];
+if[not (`$filename) in key (hsym `$logdir); (hsym `$ raze logdir,"/",filename) 0: enlist ("Starting logfile for ",(string .log.procList[system"p"])," at time: ", string .z.P)];
 
 //hopen handle to file
-.hdl.log:hopen hsym `$("/home/ubuntu/advKDB/log","/",filename);
+//.hdl.log:hopen hsym `$("/home/ubuntu/advKDB/log","/",filename);
+.hdl.log:hopen hsym `$( raze logdir,"/",filename);
 
 //functions that write to logfile
 .log.out:{[msg] (neg .hdl.log)("INFO  ",(string .z.P),"  ",msg)};
