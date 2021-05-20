@@ -55,10 +55,13 @@ int readQuote(char *csv,int h) {
 				sscanf( line, "%d:%d:%d,%[^,],%d,%d,%d,%d", &quoteTmp.timeHH,&quoteTmp.timeMM,&quoteTmp.timeSS, quoteTmp.sym,&quoteTmp.bidSize,&quoteTmp.askSize,&quoteTmp.bidPrice,&quoteTmp.askPrice);
 				printf("%s \n",line);
 				if(lineNum!=0){
+					printf("debug 4\n");
+
 					rowinfo = knk(6,ktj(-KN,castTime(quoteTmp.timeHH,quoteTmp.timeMM,quoteTmp.timeSS)), ks((S) quoteTmp.sym), kj(quoteTmp.bidSize), kf(quoteTmp.bidPrice), kj(quoteTmp.askSize), kf(quoteTmp.askPrice));
 					result = k(h,".u.upd", ks((S) "quote"), rowinfo, (K) 0);
 					//printf("%s\n",result->s);
 					r0(result);
+					printf("debug 5\n");
 				}
 				
 				lineNum++;
@@ -127,13 +130,16 @@ int main(void) {
 
     printf("Enter host name: ");
     fgets(host,LINE_MAX, stdin);
+	host[strlen(host)-1]='\0';
+
     printf("Enter port name: ");
     fgets(portpath,LINE_MAX, stdin);
+	portpath[strlen(portpath)-1]='\0';
     port = atoi(portpath);
 
     handle = login(host, port);
 
-    if (!validHandle) {
+    if (!validHandle(handle)) {
         return 0;
     }
 

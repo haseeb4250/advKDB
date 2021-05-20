@@ -1,8 +1,12 @@
 a
 >>>>>>> Install System
+sudo apt install git
+git clone https://github.com/haseeb4250/advKDB.git
+sudo apt install rlwrap
+
 - get kdb, unzip in home ~/q
 - sudo apt-get install lib32z1
-- alias q="rlwrap /home/hs/q/l32/q"
+- alias q="rlwrap /home/hs/q/l32/q" (change with your path)
 - fixing logging.q that used hardocded paths
 - make sure only one q source exists (deletel the q executable in downloads if unziped there)
 
@@ -20,3 +24,8 @@ q tick.q sym /home/hs/advKDB/tplog -p 5000 -t 1000
 - gcc -DKXVER=3 -o test test.c c.o -lpthread > compiled the test executable
 
 /home/hs/advKDB/csv/quote1.csv
+
+To install VSCODE
+sudo snap install --classic code 
+
+/home/aman/advKDB/scripts/tick/sym.q = schema
