@@ -1,0 +1,30 @@
+
+>>>>>>> Install System
+- get kdb, unzip in home ~/q
+- sudo apt-get install lib32z1
+- alias q="rlwrap /home/hs/q/l32/q"
+- fixing logging.q that used hardocded paths
+- make sure only one q source exists (deletel the q executable in downloads if unziped there)
+
+>>>>>>> startup lines
+>>TP
+q tick.q sym /home/hs/advKDB/tplog -p 5010 -t 1000
+
+>>RBD1
+q tick/r.q localhost:5010 localhost:5012 -tab "trade,quote" -p 5011
+
+>>FH
+q feed.q -p 5015
+
+
+
+>>>>>>>> C csv loader
+- sudo apt install gcc
+- copy the 64bit version of c.o file into the folder
+	> git clone https://github.com/KxSystems/kdb.git
+	> cp /home/hs/kdb/l64/c.o .
+- gcc -DKXVER=3 -o test test.c c.o -lpthread > compiled the test executable
+
+/home/hs/advKDB/csv/quote1.csv
+
+
