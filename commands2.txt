@@ -2,11 +2,27 @@
 >>>>>>> Install System
 - get kdb, unzip in home ~/q
 - sudo apt-get install lib32z1
-- alias q="rlwrap /home/hs/q/l32/q"
+- alias q="rlwrap /home/hs/q/l32/q" (replace with your filepath)
 - fixing logging.q that used hardocded paths
-- make sure only one q source exists (deletel the q executable in downloads if unziped there)
+- make sure only one q source exists (delete the q executable in downloads if unziped there)
+
+
+[Question 1]
+Parts 1-6:
+> go to startup/
+	> ./start.sh ALL
+	> ./test.sh (to ensure all procs are running)
+
+Part 7: 
+> got to scripts/
+	> q tickerIBM.q -file sym2021.06.06 (for a date that exists in tplog)
+
+Part 8:
+> go to scripts/
+	> q loadCSV.q -path /home/hs/advKDB/csv/quote1.csv (replace with your filepath)
 
 >>>>>>> startup lines
+- to launch each proc individually make sure to source install.config from startup dir
 >>TP
 q tick.q sym /home/hs/advKDB/tplog -p 5010 -t 1000
 
