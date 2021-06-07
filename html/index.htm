@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="css/styles.css"></link>
+
+<body>
+
+<section class="main">
+  <h2 class="title">WebSocket API</h1>
+  <h4 class="subtitle">Please ensure rdb1 running, connect, enter select statement</h3>
+ 	<form action="">
+		<input type="button" id="connectButton" value="connect" onclick="connect()">
+		<input type="text" id="qcode" placeholder="q)">
+		<input type="submit" value="send" onclick="return send()">
+		<input type="button" value="close" onclick="ws.close()">
+	</form>
+</section>
+<section id="output">
+	<textarea id="out" display=block></textarea>
+</section>
+
+<script>
+var ws;
+var out=document.getElementById("out");
+var sym;
+var wsTemp, wsJsonObject;
+function connect() {
+	if ("WebSocket" in window) {
+		var l = window.location;ws = new WebSocket("ws://" + (l.hostname ? l.hostname : "localhost") + ":" + (l.port ? l.port : "5011") + "/"); 
+  		out.value="connecting..." ;
+  	
+		ws.onopen=function(e) {
+			document.getElementById("connectButton").value="connected";out.value="connected";
+		} 
+  		ws.onclose=function(e) {
+			out.value="disconnected";document.getElementById("connectButton").value="connect";
+		} 
+  		ws.onmessage=function(e) {
+			wsTemp=e.data;
+	  		wsJsonObject=JSON.parse(wsTemp);
+	  		{out.value=e.data;}
+		}
+		ws.onerror=function(e){out.value=e.data;}
+	} else alert("WebSockets not supported on your browser.");
+}
+function send()
+{
+	qcode = document.getElementById("qcode");
+ 	val = qcode.value;
+ 	ws.send(val);
+ 	out.value="sent \"" + val + "\" to websocket";
+ 	return false;
+}
+
+</script>
+
+</body>
+</html>
